@@ -1,5 +1,13 @@
 #:kivy 1.9.1
 
+#: import main main
+#: import ListAdapter kivy.adapters.listadapter.ListAdapter
+
+WeatherRoot:
+
+<WeatherRoot>:
+    AddLocationForm
+
 <AddLocationForm>:
     orientation: "vertical"
     search_input: search_box
@@ -21,9 +29,37 @@
         Button:
             text: "Current Location"
             size_hint_x: 25
+
+        Button:
+            text: "Exit"
+            size_hint_x: 15
+            on_press: root.btn_exit()
             
     ListView:
         id: search_results_list
         item_strings: []
 
-AddLocationForm:
+        adapter:
+            ListAdapter(data=[], cls=main.LocationButton)
+
+<CurrentWeather@BoxLayout>:
+    location: ""
+    conditions: None
+    temp: None
+    temp_min: None
+    temp_max: None
+    orientation: 'vertical'
+    Label:
+        text: root.location
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: None
+        height: '40dp'
+        Button:
+            text: "Add Location"
+            on_press: app.root.show_add_location_form()
+        Button:
+            text: "Forecast"
+
+<LocationButton>:
+    on_press: app.root.show_current_weather(self.text)

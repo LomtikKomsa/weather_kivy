@@ -1,17 +1,35 @@
 # -*- coding: utf-8 -*-
+import sys
 import json
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty
 from kivy.network.urlrequest import UrlRequest
+from kivy.uix.listview import ListItemButton
+from kivy.factory import Factory
+
+class WeatherRoot(BoxLayout):
+    def show_current_weather(self, location):
+        from kivy.uix.label import Label
+        self.clear_widgets()
+        current_weather = Factory.CurrentWeather()
+        current_weather.location = location
+        self.add_widget(current_weather)
+
+    def show_add_location_form(self):
+        self.clear_widgets()
+        self.add_widget(AddLocationForm())
+
+class LocationButton(ListItemButton):
+    pass
 
 class AddLocationForm(BoxLayout):
     search_input = ObjectProperty()
     search_results = ObjectProperty()
 
     def search_location(self):
-        search_template = "http://api.openweathermap.org/data/2.5/find?q={}&appid={}"
+        search_template = "http://api.openweathermap.org/data/2.5/find?q={}&appid=0ab9ad65f335ba24d77fc33fafa31afe"
         search_url = search_template.format(self.search_input.text)
         request = UrlRequest(search_url, self.found_location)
 
@@ -20,6 +38,12 @@ class AddLocationForm(BoxLayout):
         cities = ["{} ({})".format(d['name'], d['sys']['country']) 
             for d in data['list']]
         self.search_results.item_strings = cities
+        del self.search_results.adapter.data[:]
+        self.search_results.adapter.data.extend(cities)
+        self.search_results._trigger_reset_populate()
+
+    def btn_exit(self):
+        return sys.exit()
 
 class WeatherApp(App):
     pass
